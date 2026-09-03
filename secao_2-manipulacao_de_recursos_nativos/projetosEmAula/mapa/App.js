@@ -1,66 +1,54 @@
-import { View, Text, TouchableOpacity, ImageBackground } from "react-native";
-import MapView from "react-native-maps";
-
-const locais = {
-  aquidauana: {
-    latitude: -20.4697,
-    longitude: -55.7875,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
-  },
-
-  eua: {
-    latitude: 40.7128,
-    longitude: -74.006,
-    latitudeDelta: 10,
-    longitudeDelta: 10,
-  },
-
-  japao: {
-    latitude: 35.6762,
-    longitude: 139.6503,
-    latitudeDelta: 10,
-    longitudeDelta: 10,
-  },
-};
+import React, { useState } from "react";
+import { StyleSheet, View, Button } from "react-native";
+import MapView, { Marker } from "react-native-maps";
 
 export default function App() {
-  const [localizacao, setLocalizacao] = useState(locais.aquidauana);
+  const [region, setRegion] = useState({
+    latitude: -14.2350, // Brasil
+    longitude: -51.9253,
+    latitudeDelta: 30,
+    longitudeDelta: 30,
+  });
+
+  const locations = {
+    brasil: { latitude: -14.2350, longitude: -51.9253 },
+    eua: { latitude: 37.0902, longitude: -95.7129 },
+    japao: { latitude: 36.2048, longitude: 138.2529 },
+  };
+
+  const goToLocation = (loc) => {
+    setRegion({
+      latitude: loc.latitude,
+      longitude: loc.longitude,
+      latitudeDelta: 30,
+      longitudeDelta: 30,
+    });
+  };
 
   return (
-    <View>
-      <Text>Escolha uma localização</Text>
-
-      <View>
-        <TouchableOpacity onPress={() => setLocalizacao(locais.aquidauana)}>
-          <ImageBackground
-            source={require("./assets/aquidauana.png")}
-            imageStyle={{ borderRadius: 8 }}
-          >
-            <Text>Aquidauana</Text>
-          </ImageBackground>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => setLocalizacao(locais.eua)}>
-          <ImageBackground
-            source={require("./assets/eua.jpg")}
-            imageStyle={{ borderRadius: 8 }}
-          >
-            <Text>EUA</Text>
-          </ImageBackground>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => setLocalizacao(locais.japao)}>
-          <ImageBackground
-            source={require("./assets/japao.png")}
-            imageStyle={{ borderRadius: 8 }}
-          >
-            <Text>Japão</Text>
-          </ImageBackground>
-        </TouchableOpacity>
+    <View style={styles.container}>
+      <MapView style={styles.map} region={region}>
+        <Marker coordinate={{ latitude: region.latitude, longitude: region.longitude }} />
+      </MapView>
+      <View style={styles.buttons}>
+        <Button title="Brasil" onPress={() => goToLocation(locations.brasil)} />
+        <Button title="EUA" onPress={() => goToLocation(locations.eua)} />
+        <Button title="Japão" onPress={() => goToLocation(locations.japao)} />
       </View>
-
-      <MapView style={styles.mapa} region={localizacao} />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  map: {
+    flex: 1,
+  },
+  buttons: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    padding: 10,
+  },
+});
