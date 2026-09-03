@@ -1,0 +1,85 @@
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import * as Location from 'expo-location';
+import MapView, { Marker, UrlTile } from 'react-native-maps';
+
+export default function App() {
+const [mensagem, setMensagem] = useState('Aguardando sua permissão...');
+const [localizacao, setLocalizacao] = useState(null); // Guarda as coordenadas
+
+useEffect(() => {
+(async () => {
+let { status } = await Location.requestForegroundPermissionsAsync();
+if (status !== 'granted') {
+setMensagem('Permissão NEGADA! O app não tem acesso.');
+return;
+}
+setMensagem('Permissão CONCEDIDA! Buscando satélites...');
+
+//inicia rastreio
+await Location.watchPositionAsync(
+{
+accuracy: Location.Accuracy.High, //precisao do gps
+timeInterval: 2000, // atualiza a cada 2 segundos
+distanceInterval: 1, // ou a cada 1 metro
+},
+(novaPosicao) => {
+setLocalizacao(novaPosicao.coords); // salva a posição sempre que andar
+}
+);
+})();
+}, []);
+
+// se o GPS ainda não achou a posição, mostra a tela de texto
+if (!localizacao) {
+return (
+<View style={styles.container}>
+<Text style={styles.texto}>{mensagem}</Text>
+</View>
+);
+}
+
+// Se achou a posição, renderiza o mapa
+return (
+<View style={styles.container}>
+<MapView
+style={styles.mapa}
+mapType="none" // Desliga o mapa padrão da Apple/Google
+initialRegion={{
+latitude: localizacao.latitude,
+longitude: localizacao.longitude,
+latitudeDelta: 0.005, // Controla o zoom inicial
+longitudeDelta: 0.005,
+}}
+>
+{/* Adiciona as imagens do mapa gratuito do OpenStreetMap */}
+<UrlTile
+urlTemplate="https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"
+maximumZ={19}
+/>
+ 
+{/* Desenha o pino*/}
+<Marker coordinate={localizacao} title="Estou aqui!" />
+</MapView>
+</View>
+);
+}
+
+const styles = StyleSheet.create({
+container: {
+flex: 1,
+justifyContent: 'center',
+alignItems: 'center',
+backgroundColor: '#fff',
+},
+texto: {
+fontSize: 18,
+textAlign: 'center',
+fontWeight: 'bold',
+padding: 20,
+},
+mapa: {
+width: '100%',
+height: '100%',
+},
+});

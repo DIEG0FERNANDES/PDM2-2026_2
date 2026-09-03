@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "mapa-paises",
+    "slug": "mapa-paises",
+    "sdkVersion": "54.0.0",
+    "platforms": ["ios", "android", "web"],
+    "android": {
+      "permissions": ["ACCESS_FINE_LOCATION"]
+    }
+  }
+}
